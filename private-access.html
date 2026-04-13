@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private Access — Tom Jelinek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #07111F;
+  --navy2:  #0D1E30;
+  --navy3:  #112236;
+  --gold:   #C4A062;
+  --gold2:  #A0814A;
+  --gold3:  #E8D5A8;
+  --cream:  #F2EDE4;
+  --slate:  #2C3E55;
+  --muted:  #6B7E96;
+  --white:  #FFFFFF;
+  --border: rgba(196,160,98,0.2);
+  --border2:rgba(196,160,98,0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px;
+  background: rgba(7,17,31,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border2);
+}
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; letter-spacing: 0.12em; color: var(--gold); text-decoration: none; text-transform: uppercase; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-size: 11px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s; }
+.nav-links a:hover { color: var(--gold3); }
+.nav-cta { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy); background: var(--gold); padding: 9px 22px; text-decoration: none; transition: background 0.3s; }
+.nav-cta:hover { background: var(--gold3); }
+
+/* HERO */
+#hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 100px 48px 80px; text-align: center; }
+.hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196,160,98,0.055) 0%, transparent 70%); }
+.hero-lines { position: absolute; inset: 0; background-image: linear-gradient(rgba(196,160,98,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(196,160,98,0.04) 1px, transparent 1px); background-size: 80px 80px; mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 30%, transparent 100%); }
+.hero-confidential { font-size: 10px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 40px; opacity: 0; animation: fadeUp 1s ease 0.2s forwards; }
+.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(56px, 8vw, 96px); font-weight: 300; line-height: 1.0; color: var(--white); margin-bottom: 12px; opacity: 0; animation: fadeUp 1s ease 0.4s forwards; }
+.hero-title em { font-style: italic; color: var(--gold3); }
+.hero-subtitle { font-family: 'Cormorant Garamond', serif; font-size: clamp(20px, 3vw, 28px); font-weight: 300; font-style: italic; color: var(--muted); margin-bottom: 56px; opacity: 0; animation: fadeUp 1s ease 0.55s forwards; }
+.hero-rule { width: 1px; height: 60px; background: linear-gradient(to bottom, transparent, var(--gold), transparent); margin: 0 auto 40px; opacity: 0; animation: fadeIn 1s ease 0.7s forwards; }
+.hero-curator { opacity: 0; animation: fadeUp 1s ease 0.85s forwards; }
+.hero-curator-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.hero-curator-name { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; color: var(--cream); margin-bottom: 6px; }
+.hero-curator-role { font-size: 12px; font-weight: 300; color: var(--muted); letter-spacing: 0.08em; }
+.hero-scroll { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fadeIn 1s ease 1.4s forwards; }
+.hero-scroll span { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease infinite; }
+
+@keyframes scrollPulse { 0%,100%{opacity:0.3;transform:scaleY(0.6);transform-origin:top}50%{opacity:1;transform:scaleY(1)} }
+
+/* SECTIONS */
+section { padding: 100px 0; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+.section-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
+.section-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+.section-heading { font-family: 'Cormorant Garamond', serif; font-size: clamp(38px, 5vw, 58px); font-weight: 300; line-height: 1.1; color: var(--white); margin-bottom: 24px; }
+.section-heading em { font-style: italic; color: var(--gold3); }
+
+/* OVERVIEW */
+#overview { background: var(--navy2); border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2); }
+.overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 64px; }
+.overview-col p { font-size: 14px; color: rgba(242,237,228,0.7); line-height: 1.9; margin-bottom: 18px; }
+.overview-col p strong { color: var(--cream); font-weight: 400; }
+.disclaimer-note { margin-top: 48px; padding: 20px 28px; border-left: 2px solid var(--gold2); background: rgba(196,160,98,0.05); }
+.disclaimer-note p { font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.7; }
+
+/* OPPORTUNITIES */
+#opportunities { background: var(--navy); }
+.opp-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 64px; }
+.opp-count { font-family: 'Cormorant Garamond', serif; font-size: 80px; font-weight: 300; color: rgba(196,160,98,0.1); line-height: 1; margin-top: -12px; }
+.opp-list { display: flex; flex-direction: column; gap: 2px; }
+.opp-card { background: var(--navy2); border: 1px solid var(--border2); overflow: hidden; transition: border-color 0.4s; cursor: pointer; }
+.opp-card:hover { border-color: var(--border); }
+.opp-card-header { display: grid; grid-template-columns: 64px 1fr auto 36px; align-items: center; gap: 28px; padding: 28px 36px; transition: background 0.3s; }
+.opp-card:hover .opp-card-header { background: rgba(196,160,98,0.04); }
+.opp-number { font-family: 'Cormorant Garamond', serif; font-size: 13px; color: var(--gold); letter-spacing: 0.1em; opacity: 0.7; }
+.opp-name { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--white); line-height: 1.1; margin-bottom: 4px; }
+.opp-tagline { font-size: 12px; color: var(--muted); font-style: italic; font-family: 'Cormorant Garamond', serif; }
+.opp-meta { text-align: right; }
+.opp-return { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--gold); display: block; }
+.opp-timeline { font-size: 11px; color: var(--muted); }
+.opp-expand { width: 28px; height: 28px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 20px; transition: transform 0.3s; font-weight: 300; flex-shrink: 0; line-height: 1; }
+.opp-card.open .opp-expand { transform: rotate(45deg); }
+.opp-card-body { display: none; padding: 0 36px 36px; border-top: 1px solid var(--border2); }
+.opp-card.open .opp-card-body { display: block; }
+.opp-body-grid { display: grid; grid-template-columns: 1fr 280px; gap: 48px; padding-top: 28px; }
+.opp-sub { font-size: 9px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; margin-top: 22px; }
+.opp-sub:first-child { margin-top: 0; }
+.opp-desc { font-size: 14px; color: rgba(242,237,228,0.75); line-height: 1.8; }
+.opp-bullets { list-style: none; margin-top: 6px; }
+.opp-bullets li { font-size: 13px; color: rgba(242,237,228,0.65); line-height: 1.7; padding: 5px 0 5px 20px; position: relative; border-bottom: 1px solid var(--border2); }
+.opp-bullets li:last-child { border-bottom: none; }
+.opp-bullets li::before { content: '\2014'; position: absolute; left: 0; color: var(--gold2); font-size: 11px; }
+.profile-table { background: rgba(196,160,98,0.05); border: 1px solid var(--border); padding: 4px 0; align-self: start; position: sticky; top: 80px; }
+.profile-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border2); }
+.profile-row:last-child { border-bottom: none; }
+.profile-key { padding: 12px 18px; font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--border2); }
+.profile-val { padding: 12px 18px; font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold3); }
+
+/* PRIVATE */
+#private { background: linear-gradient(160deg, var(--navy3) 0%, var(--navy) 60%); border-top: 1px solid var(--border); }
+.private-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; margin-top: 64px; }
+.private-estate-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+.private-estate-name { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; color: var(--white); line-height: 1.1; margin-bottom: 8px; }
+.private-estate-sub { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: var(--muted); margin-bottom: 36px; }
+.private-divider { width: 48px; height: 1px; background: var(--gold); margin-bottom: 28px; }
+.private-desc { font-size: 14px; color: rgba(242,237,228,0.7); line-height: 1.85; margin-bottom: 28px; }
+.private-features { list-style: none; }
+.private-features li { font-size: 13px; color: rgba(242,237,228,0.6); padding: 8px 0 8px 22px; position: relative; border-bottom: 1px solid var(--border2); }
+.private-features li:first-child { border-top: 1px solid var(--border2); }
+.private-features li::before { content: '\25C6'; position: absolute; left: 0; color: var(--gold2); font-size: 7px; top: 12px; }
+.private-access-card { background: rgba(196,160,98,0.06); border: 1px solid var(--border); padding: 40px; margin-bottom: 24px; }
+.private-access-price { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+.private-access-per { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 28px; }
+.private-access-note { font-size: 12px; color: rgba(242,237,228,0.5); font-style: italic; line-height: 1.7; }
+.private-quote { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; font-style: italic; color: rgba(196,160,98,0.8); line-height: 1.55; padding-left: 24px; border-left: 2px solid var(--gold2); }
+
+/* ALIGNMENT */
+#alignment { background: var(--navy2); border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border); }
+.align-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.align-stat { text-align: center; padding: 48px; border: 1px solid var(--border); position: relative; }
+.align-stat::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--gold); }
+.align-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 10px; }
+.align-stat-label { font-size: 11px; font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.align-text p { font-size: 14px; color: rgba(242,237,228,0.7); line-height: 1.85; margin-bottom: 16px; }
+.align-text p:last-child { margin-bottom: 0; }
+
+/* CONTACT */
+#contact { background: var(--navy); padding: 120px 0; }
+.contact-inner { display: grid; grid-template-columns: 1fr 400px; gap: 80px; align-items: start; }
+.contact-name { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; color: var(--white); line-height: 1.1; margin-bottom: 8px; }
+.contact-title { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 40px; }
+.contact-bio { font-size: 15px; color: rgba(242,237,228,0.65); line-height: 1.85; max-width: 500px; margin-bottom: 48px; }
+.contact-links { display: flex; flex-direction: column; gap: 1px; }
+.contact-link-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; border-bottom: 1px solid var(--border2); }
+.contact-link-row:first-child { border-top: 1px solid var(--border2); }
+.contact-link-key { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding: 14px 0; }
+.contact-link-val { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold3); text-decoration: none; transition: color 0.3s; padding: 14px 0; display: block; }
+.contact-link-val:hover { color: var(--gold); }
+.contact-card { background: rgba(196,160,98,0.05); border: 1px solid var(--border); padding: 44px; }
+.contact-card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--white); margin-bottom: 12px; }
+.contact-card-desc { font-size: 13px; color: var(--muted); line-height: 1.75; margin-bottom: 32px; }
+.contact-form { display: flex; flex-direction: column; gap: 14px; }
+.contact-form input, .contact-form textarea, .contact-form select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; padding: 13px 16px; outline: none; transition: border-color 0.3s; width: 100%; }
+.contact-form input::placeholder, .contact-form textarea::placeholder { color: var(--muted); }
+.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus { border-color: var(--gold2); }
+.contact-form textarea { resize: none; height: 100px; }
+.contact-form select { color: var(--muted); -webkit-appearance: none; cursor: pointer; }
+.contact-form select:focus { color: var(--cream); }
+.contact-form option { background: var(--navy2); }
+.btn-primary { display: block; background: var(--gold); color: var(--navy); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; padding: 14px 28px; border: none; cursor: pointer; transition: background 0.3s; width: 100%; text-align: center; }
+.btn-primary:hover { background: var(--gold3); }
+
+/* FOOTER */
+footer { background: var(--navy2); border-top: 1px solid var(--border); padding: 40px 48px; }
+.footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 60px; }
+.footer-left { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--muted); flex-shrink: 0; }
+.footer-left strong { display: block; color: var(--gold); margin-bottom: 4px; font-size: 17px; font-weight: 400; }
+.footer-disclaimer { flex: 1; font-size: 11px; color: rgba(107,126,150,0.7); line-height: 1.65; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0}to{opacity:1} }
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:0 24px} .nav-links{display:none} .container{padding:0 24px}
+  .overview-grid,.private-grid,.align-inner,.contact-inner{grid-template-columns:1fr;gap:40px}
+  .opp-card-header{grid-template-columns:1fr auto 36px} .opp-number{display:none}
+  .opp-body-grid{grid-template-columns:1fr} .profile-table{position:static}
+  footer{padding:32px 24px} .footer-inner{flex-direction:column;gap:24px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#hero">Private Access</a>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#opportunities">Opportunities</a></li>
+    <li><a href="#private">Private Access</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" href="#contact">Request Access</a>
+</nav>
+
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <p class="hero-confidential">Private &amp; Confidential &nbsp;&middot;&nbsp; By Invitation Only</p>
+  <h1 class="hero-title">Private <em>Access</em></h1>
+  <p class="hero-subtitle">Selected Opportunities</p>
+  <div class="hero-rule"></div>
+  <div class="hero-curator">
+    <p class="hero-curator-label">Curated by</p>
+    <p class="hero-curator-name">Tom Jelinek</p>
+    <p class="hero-curator-role">Senior Investment Professional &nbsp;&middot;&nbsp; 18+ Years &nbsp;&middot;&nbsp; Wealth Management &amp; Private Markets</p>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<section id="overview">
+  <div class="container">
+    <p class="section-eyebrow">Overview</p>
+    <h2 class="section-heading reveal">A discreet portfolio of<br><em>high-conviction</em> investments</h2>
+    <div class="overview-grid reveal">
+      <div class="overview-col">
+        <p>The following is a curated selection of opportunities spanning both <strong>high-conviction investments</strong> and select experiential offerings — reflecting a broader philosophy of access to exceptional opportunities across both capital and lifestyle.</p>
+        <p>The investment opportunities presented have been carefully selected for their potential to deliver <strong>asymmetric return profiles</strong>, supported by identifiable catalysts and clear pathways to value realisation.</p>
+        <p>A number of these investments are positioned around near- to medium-term liquidity horizons, driven by commercial milestones, strategic interest, or structured secondary events.</p>
+      </div>
+      <div class="overview-col">
+        <p>The emphasis is not solely on return magnitude, but on the combination of <strong>probability, timing, and access</strong> — transactions not broadly available to the market.</p>
+        <p>Tom Jelinek brings 18+ years of senior experience across wealth management, private markets, and advisory — with a focus on identifying asymmetric opportunities supported by disciplined selection and strong networks.</p>
+        <div class="disclaimer-note">
+          <p>Indicative return parameters and timelines are provided for context only and should not be interpreted as guarantees. Past performance is not indicative of future results.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="opportunities">
+  <div class="container">
+    <div class="opp-header reveal">
+      <div>
+        <p class="section-eyebrow">Core Opportunities</p>
+        <h2 class="section-heading">Selected for<br><em>asymmetric</em> potential</h2>
+      </div>
+      <div class="opp-count">07</div>
+    </div>
+    <div class="opp-list reveal">
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">01</span>
+          <div><p class="opp-name">StorONE</p><p class="opp-tagline">Tier 1 performance at Tier 2 cost</p></div>
+          <div class="opp-meta"><span class="opp-return">&ge;5x</span><span class="opp-timeline">~12 months &middot; Acquisition</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A next-generation enterprise data storage platform solving structural inefficiencies in global data architecture. Rising flash storage costs are forcing enterprises to rethink how data is stored and managed.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Founded by serial entrepreneur Gal Naor; backed by John Thompson (ex-Microsoft Chairman) and Ed Zander (ex-Motorola &amp; Sun Microsystems)</li>
+                <li>Up to 75% cost reduction versus traditional architectures</li>
+                <li>Proprietary auto-tiering technology optimising data placement dynamically</li>
+                <li>Established enterprise traction with global deployments and a strong partner ecosystem</li>
+                <li>Q1 2026 matched full-year 2025 sales &mdash; profitability expected Q2 2026</li>
+                <li>Three licence renewals secured in March 2026, reinforcing recurring revenue strength</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A timely infrastructure solution aligned with a structural market shift, where cost efficiency is becoming mission-critical.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Entry Valuation</span><span class="profile-val">~USD 178m</span></div>
+              <div class="profile-row"><span class="profile-key">Targeted Return</span><span class="profile-val">&ge;5x</span></div>
+              <div class="profile-row"><span class="profile-key">Timeline</span><span class="profile-val">~12 months</span></div>
+              <div class="profile-row"><span class="profile-key">Driver</span><span class="profile-val">Acquisition</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">02</span>
+          <div><p class="opp-name">Cambridge Medical Technologies</p><p class="opp-tagline">The bloodless blood test</p></div>
+          <div class="opp-meta"><span class="opp-return">~3x</span><span class="opp-timeline">~12 months &middot; Secondary</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A clinical-grade, non-invasive biosensor platform enabling real-time monitoring of biomarkers without blood extraction. Healthcare is transitioning from episodic diagnostics to continuous, predictive monitoring.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Non-invasive biosensor delivering continuous, real-time physiological data</li>
+                <li>Validated in Harvard-affiliated clinical trials across multiple biomarkers</li>
+                <li>Demonstrated accuracy comparable to traditional blood testing</li>
+                <li>Platform capable of expanding across a wide range of biomarkers</li>
+                <li>Addressable markets exceeding $60 billion</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A potentially category-defining diagnostic platform, with applications spanning healthcare, longevity, and personalised medicine.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Entry Valuation</span><span class="profile-val">~GBP 139m</span></div>
+              <div class="profile-row"><span class="profile-key">Targeted Return</span><span class="profile-val">~3x</span></div>
+              <div class="profile-row"><span class="profile-key">Timeline</span><span class="profile-val">~12 months</span></div>
+              <div class="profile-row"><span class="profile-key">Driver</span><span class="profile-val">Larger round &amp; secondary</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">03</span>
+          <div><p class="opp-name">Atlas Consolidated (HugoHub)</p><p class="opp-tagline">Re-architecting banking infrastructure</p></div>
+          <div class="opp-meta"><span class="opp-return">~15x</span><span class="opp-timeline">~36 months &middot; Acquisition/IPO</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A full-stack, AI-enabled bank-in-a-box platform enabling financial institutions to launch and scale digital products rapidly. Banks face declining margins, legacy constraints, and rising competition from technology-native challengers.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Reduces infrastructure and operational costs by 50&ndash;75%</li>
+                <li>No-code architecture enabling rapid product deployment</li>
+                <li>ARR of USD 4.5m &mdash; 200% increase in under 12 months</li>
+                <li>Exposure to ~$600bn global banking technology spend</li>
+                <li>Multi-award-winning platform with near-term monetisation from existing operating assets</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A core infrastructure play within financial services, positioned at the convergence of AI, embedded finance, and digital transformation.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Entry Valuation</span><span class="profile-val">~USD 95m</span></div>
+              <div class="profile-row"><span class="profile-key">Targeted Return</span><span class="profile-val">~15x</span></div>
+              <div class="profile-row"><span class="profile-key">Timeline</span><span class="profile-val">~36 months</span></div>
+              <div class="profile-row"><span class="profile-key">Driver</span><span class="profile-val">Acquisition or IPO</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">04</span>
+          <div><p class="opp-name">Advanced Material Development</p><p class="opp-tagline">Smart materials. Transformative applications.</p></div>
+          <div class="opp-meta"><span class="opp-return">~10x</span><span class="opp-timeline">2&ndash;3 years &middot; Licensing</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A deep-technology platform developing proprietary smart materials &mdash; graphene-based conductive inks and photonic crystal polymers &mdash; for healthcare, logistics, and advanced manufacturing. Up to 50% of vaccines are lost due to cold-chain failures.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Dual innovation engine combining graphene conductivity with optical sensing</li>
+                <li>Capital-light licensing model enabling global scalability</li>
+                <li>Exclusive long-term licensing agreement secured with a major packaging group</li>
+                <li>Active engagement with GSK and Eli Lilly</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A platform technology with recurring royalty economics, at the intersection of materials science, healthcare, and global logistics.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Entry Valuation</span><span class="profile-val">~GBP 20m</span></div>
+              <div class="profile-row"><span class="profile-key">Targeted Return</span><span class="profile-val">~10x</span></div>
+              <div class="profile-row"><span class="profile-key">Timeline</span><span class="profile-val">2&ndash;3 years</span></div>
+              <div class="profile-row"><span class="profile-key">Model</span><span class="profile-val">Royalty licensing</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">05</span>
+          <div><p class="opp-name">Aspire Intelligence</p><p class="opp-tagline">The operating system for the modern family office</p></div>
+          <div class="opp-meta"><span class="opp-return">~25x</span><span class="opp-timeline">~48 months &middot; Acquisition</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A secure, AI-native platform as the system of record for family offices &mdash; incorporating biological capital, travel &amp; lifestyle, and next-generation support. An $84 trillion generational wealth transfer is underway on fragmented infrastructure.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Purpose-built infrastructure for complex wealth ecosystems with full data isolation</li>
+                <li>Addresses succession, cybersecurity, and institutional memory risks</li>
+                <li>Integrated biological capital layer &mdash; health, longevity, and performance optimisation</li>
+                <li>Curated lifestyle and experiential platform including travel and bespoke experiences</li>
+                <li>Dedicated next-generation support for continuity and education</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A foundational infrastructure layer for wealth management, solving a critical and under-addressed problem at the apex of the market.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Entry Valuation</span><span class="profile-val">USD 10m</span></div>
+              <div class="profile-row"><span class="profile-key">Targeted Return</span><span class="profile-val">~25x</span></div>
+              <div class="profile-row"><span class="profile-key">Timeline</span><span class="profile-val">~48 months</span></div>
+              <div class="profile-row"><span class="profile-key">Driver</span><span class="profile-val">Acquisition</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">06</span>
+          <div><p class="opp-name">Leon Capital</p><p class="opp-tagline">Private markets investing with heritage and discipline</p></div>
+          <div class="opp-meta"><span class="opp-return">20% IRR</span><span class="opp-timeline">3&ndash;7 years &middot; Deal by deal</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A private equity platform focused on mid-market European investments across technology-enabled services, healthcare, and business services &mdash; where active ownership drives returns beyond public market equivalents.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Co-founded by Jean-Christophe Napol&eacute;on Bonaparte &mdash; direct descendant of the Bonaparte dynasty</li>
+                <li>Investment pedigree spanning Blackstone and Advent International</li>
+                <li>Focus on mid-market European opportunities with operational upside</li>
+                <li>Founder-led approach with strong alignment and long-term value creation</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A highly curated private markets strategy combining institutional investment discipline with a differentiated network and heritage.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Targeted Return</span><span class="profile-val">20% IRR</span></div>
+              <div class="profile-row"><span class="profile-key">Term</span><span class="profile-val">3&ndash;7 years</span></div>
+              <div class="profile-row"><span class="profile-key">Structure</span><span class="profile-val">Deal by deal</span></div>
+              <div class="profile-row"><span class="profile-key">Focus</span><span class="profile-val">Mid-market Europe</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opp-card" onclick="toggle(this)">
+        <div class="opp-card-header">
+          <span class="opp-number">07</span>
+          <div><p class="opp-name">Twelve x Twelve</p><p class="opp-tagline">Unlocking liquidity from music rights</p></div>
+          <div class="opp-meta"><span class="opp-return">7.5&ndash;10%</span><span class="opp-timeline">5yr &middot; Yield / ABS</span></div>
+          <div class="opp-expand">+</div>
+        </div>
+        <div class="opp-card-body">
+          <div class="opp-body-grid">
+            <div>
+              <p class="opp-sub">The Opportunity</p>
+              <p class="opp-desc">A specialised financing platform providing advances against music royalty streams &mdash; enabling rightsholders to access future income today while retaining full ownership. Global music revenues projected to reach ~$155bn by 2030.</p>
+              <p class="opp-sub">Key Highlights</p>
+              <ul class="opp-bullets">
+                <li>Advances secured directly against underlying music rights portfolios</li>
+                <li>Rightsholders retain full ownership &mdash; no forced catalogue sales</li>
+                <li>Rapid underwriting and funding, typically within days</li>
+                <li>Transparent, non-compounding cost structure with predictable cash flows</li>
+                <li>Data-driven valuation engine with automated processing</li>
+                <li>Music royalty ABS markets: sub-1% historical default rate (c.0.44% over ~20-year period)</li>
+              </ul>
+              <p class="opp-sub">Investment Case</p>
+              <p class="opp-desc">A yield-oriented strategy backed by real, contracted cash flows &mdash; combining predictable income, strong collateralisation, and structural growth in global music consumption.</p>
+            </div>
+            <div class="profile-table">
+              <div class="profile-row"><span class="profile-key">Targeted Yield</span><span class="profile-val">7.5&ndash;10% p.a.</span></div>
+              <div class="profile-row"><span class="profile-key">Default Rate</span><span class="profile-val">Sub-1% historical</span></div>
+              <div class="profile-row"><span class="profile-key">Holding Period</span><span class="profile-val">5-year instruments</span></div>
+              <div class="profile-row"><span class="profile-key">Liquidity</span><span class="profile-val">Tradable (ISIN assigned)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="private">
+  <div class="container">
+    <p class="section-eyebrow reveal">Private Access</p>
+    <div class="private-grid reveal">
+      <div>
+        <p class="private-estate-label">Featured Estate</p>
+        <h3 class="private-estate-name">The Vanderbilt<br>Sanctuary</h3>
+        <p class="private-estate-sub">Phuket, Thailand</p>
+        <div class="private-divider"></div>
+        <p class="private-desc">A 12-acre ultra-private hilltop estate designed as a secluded sanctuary for families and select guests &mdash; one of the only estates of its kind in Asia.</p>
+        <ul class="private-features">
+          <li>Fully private compound with panoramic views and complete seclusion</li>
+          <li>7 en-suite bedrooms accommodating up to 14 guests</li>
+          <li>Architectural blend of classical Georgian design and tropical landscape</li>
+          <li>Discreet yet highly accessible location</li>
+          <li>All-inclusive: premium meals, curated wines &amp; spirits</li>
+        </ul>
+      </div>
+      <div>
+        <div class="private-access-card">
+          <p class="private-access-price">USD 25,000</p>
+          <p class="private-access-per">per night &middot; all-inclusive</p>
+          <p class="private-access-note">Available on a strictly limited, invitation-only basis. Access is extended at the sole discretion of Tom Jelinek. All enquiries handled with complete confidentiality.</p>
+        </div>
+        <blockquote class="private-quote">
+          &ldquo;Access is not about availability. It is about curation, judgement, and trust.&rdquo;
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="alignment">
+  <div class="container">
+    <p class="section-eyebrow reveal">Alignment &amp; Economics</p>
+    <div class="align-inner reveal">
+      <div class="align-stat">
+        <p class="align-stat-num">10%</p>
+        <p class="align-stat-label">Maximum participation in realised gains</p>
+      </div>
+      <div class="align-text">
+        <p>Where appropriate and agreed with investors, Tom may participate through a performance-based fee structure aligned to realised outcomes.</p>
+        <p>This is structured as a share of upside only &mdash; applicable solely upon successful realisation of returns. There is no participation without investor gain.</p>
+        <p>Indicatively, this may be up to 10% of realised gains, ensuring complete alignment between Tom&rsquo;s interests and those of his investors.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div class="contact-left reveal">
+        <h2 class="contact-name">Tom Jelinek</h2>
+        <p class="contact-title">Senior Investment Professional &nbsp;&middot;&nbsp; Private Markets &amp; Advisory</p>
+        <p class="contact-bio">Tom brings 18+ years of senior experience across wealth management, private markets, and advisory &mdash; with a focus on identifying asymmetric opportunities not broadly available to the market. His approach combines disciplined selection with a strong proprietary network and a track record of access to exceptional transactions.</p>
+        <div class="contact-links">
+          <div class="contact-link-row">
+            <span class="contact-link-key">Email</span>
+            <span class="contact-link-val">tgjelinek@gmail.com</span>
+          </div>
+          <div class="contact-link-row">
+            <span class="contact-link-key">Phone</span>
+            <span class="contact-link-val">+65 9388 9352</span>
+          </div>
+          <div class="contact-link-row">
+            <span class="contact-link-key">LinkedIn</span>
+            <span class="contact-link-val">linkedin.com/in/tom-jelinek</span>
+          </div>
+        </div>
+      </div>
+      <div class="contact-right reveal">
+        <div class="contact-card">
+          <p class="contact-card-title">Request Further Information</p>
+          <p class="contact-card-desc">To discuss any of the opportunities presented or to be considered for allocation, please reach out directly. All enquiries are handled with the utmost discretion.</p>
+          <div class="contact-form">
+            <input type="text" placeholder="Full Name">
+            <input type="email" placeholder="Email Address">
+            <select>
+              <option value="" disabled selected>Opportunity of Interest</option>
+              <option>StorONE</option>
+              <option>Cambridge Medical Technologies</option>
+              <option>Atlas Consolidated (HugoHub)</option>
+              <option>Advanced Material Development</option>
+              <option>Aspire Intelligence</option>
+              <option>Leon Capital</option>
+              <option>Twelve x Twelve</option>
+              <option>The Vanderbilt Sanctuary</option>
+              <option>Multiple / General Enquiry</option>
+            </select>
+            <textarea placeholder="Brief message (optional)"></textarea>
+            <button class="btn-primary" onclick="handleSubmit()">Request Access</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <strong>Private Access</strong>
+      Curated by Tom Jelinek
+    </div>
+    <p class="footer-disclaimer">
+      This document has been prepared for informational purposes only and is intended solely for the recipient. It does not constitute an offer, solicitation, or advice to buy or sell any investment. Forward-looking statements, including indicative return profiles and timelines, are inherently subject to significant uncertainties. Actual outcomes may differ materially. No assurance is given that any investment objective will be achieved. Recipients should seek independent professional advice before making any investment decision. Certain opportunities may only be available to professional, accredited, or institutional investors. By accessing this document, the recipient agrees to maintain its confidentiality.
+    </p>
+  </div>
+</footer>
+
+<script>
+function toggle(card) {
+  var isOpen = card.classList.contains('open');
+  document.querySelectorAll('.opp-card.open').forEach(function(c){ c.classList.remove('open'); });
+  if (!isOpen) card.classList.add('open');
+}
+var obs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+window.addEventListener('scroll', function(){
+  document.querySelector('nav').style.borderBottomColor = window.scrollY > 10 ? 'rgba(196,160,98,0.15)' : 'rgba(196,160,98,0.08)';
+});
+function handleSubmit(){ alert('Thank you. Your enquiry has been received. Tom will be in touch shortly.'); }
+</script>
+</body>
+</html>
